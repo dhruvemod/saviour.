@@ -1,7 +1,12 @@
 package decodertech.com.saviour;
 
+import android.*;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +29,8 @@ public class MapActivity extends Fragment {
     MapView mMapView;
     private GoogleMap googleMap;
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
@@ -45,6 +52,11 @@ public class MapActivity extends Fragment {
                 googleMap = mMap;
 
                 // For showing a move to my location button
+                if(ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(getActivity(),new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},1);
+                }
+                else{
+                    try{
                 googleMap.setMyLocationEnabled(true);
 
                 // For dropping a marker at a point on the Map
@@ -53,7 +65,11 @@ public class MapActivity extends Fragment {
 
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));}catch (Exception e){
+
+                    }
+                }
+
             }
         });
 

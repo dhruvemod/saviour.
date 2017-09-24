@@ -40,6 +40,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
+import static android.content.Context.LOCATION_SERVICE;
 import static decodertech.com.saviour.ContactDb.Contact_person.TABLE_NAME;
 
 /**
@@ -57,8 +60,11 @@ public class HomeActivity extends Fragment{
     LocationManager locationManager;
     LocationListener locationListener;
     String address;
+    String phoneNumber="9897344565";
     MapView mMapView;
     private GoogleMap googleMap;
+    FirebaseDatabase database;
+    DatabaseReference databaseReference;
 
 
 
@@ -82,6 +88,8 @@ public class HomeActivity extends Fragment{
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
         Button saveMe=rootView.findViewById(R.id.saveMeButton);
+        database=FirebaseDatabase.getInstance();
+        databaseReference=database.getReference();
         mMapView = (MapView) rootView.findViewById(R.id.mView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
@@ -90,19 +98,6 @@ public class HomeActivity extends Fragment{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        saveMe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    getLocation();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                //sendMessage(view);
-            }
-        });
-
-
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -126,11 +121,35 @@ public class HomeActivity extends Fragment{
 
             }
         });
+        saveMe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    getLocation();
+                   // MapTask();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try{
+                String key = database.getReference("Cases").push().getKey();
+
+                InfoToSend infoToSend=new InfoToSend(key,address,phoneNumber);
+                databaseReference.child("Cases").push().setValue(infoToSend);}
+                catch (Exception e){
+
+                }
+                //sendMessage(view);
+
+            }
+        });
+
+
 
 
 
         return rootView;
     }
+
     public void sendMessage(View view){
     ArrayList<contact> list= (ArrayList<contact>) readFromDb();
         ArrayList<String> list1=new ArrayList<>();
@@ -190,7 +209,7 @@ public class HomeActivity extends Fragment{
     }
     public Location getLocation() throws IOException {
 
-        locationManager= (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        locationManager= (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
 
         locationListener=new LocationListener() {
             @Override
@@ -226,16 +245,22 @@ public class HomeActivity extends Fragment{
         }
 
         else{
+
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
-            lastKnown=locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            lastKnown=getLastKnownLocation();
 
             if(lastKnown!=null){
 
                 updateLocationInfo(lastKnown);
             }
+            else{
+                Toast.makeText(getContext(),"Aya to hai",Toast.LENGTH_SHORT).show();
+
+            }
         }
         return lastKnown;
     }
+
     public void updateLocationInfo(Location location) throws IOException {
         //Toast.makeText(getContext(),location.toString(),Toast.LENGTH_SHORT).show();
 
@@ -247,7 +272,7 @@ public class HomeActivity extends Fragment{
             try {
                 addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                 Log.i("PlaceInfo", addresses.get(0).toString());
-               // Toast.makeText(getContext(),addresses.get(0).toString(),Toast.LENGTH_LONG).show();
+               //Toast.makeText(getContext(),addresses.get(0).toString(),Toast.LENGTH_LONG).show();
 
             }
 
@@ -282,12 +307,14 @@ public class HomeActivity extends Fragment{
         if(addresses.get(0).getSubAdminArea()!=null){
             address+="District:"+addresses.get(0).getSubAdminArea()+"\n";
         }
-                //Toast.makeText(getContext(),address,Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),address,Toast.LENGTH_SHORT).show();
     }catch (Exception e){
     }
 
 }
+/*public void MapTask(){
 
+}*/
     @Override
     public void onResume() {
         super.onResume();
@@ -311,6 +338,24 @@ public class HomeActivity extends Fragment{
         super.onLowMemory();
         mMapView.onLowMemory();
     }
-
+    private Location getLastKnownLocation() {
+        locationManager = (LocationManager)getContext().getSystemService(LOCATION_SERVICE);
+        List<String> providers = locationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+            }
+            Location l = locationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                // Found best last known location: %s", l);
+                bestLocation = l;
+            }
+        }
+        return bestLocation;
+    }
 
 }
