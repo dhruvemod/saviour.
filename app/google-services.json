@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "116657691352",
+    "firebase_url": "https://saviour-1505909819216.firebaseio.com",
+    "project_id": "saviour-1505909819216",
+    "storage_bucket": "saviour-1505909819216.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116657691352:android:1e4bc7dfb557d8cf",
+        "android_client_info": {
+          "package_name": "decodertech.com.saviour"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "116657691352-lroh7g1pvdgj487dig2b91534lfjmfjs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "decodertech.com.saviour",
+            "certificate_hash": "2400f2bcf20125fdddb3ae18a5245d4bc7ab0573"
+          }
+        },
+        {
+          "client_id": "116657691352-7397nrg2od99331raalrpb7f260mmai3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhCMvO00yWySaJ_Yfv9he9XrrRdy27l2s"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "116657691352-7397nrg2od99331raalrpb7f260mmai3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
